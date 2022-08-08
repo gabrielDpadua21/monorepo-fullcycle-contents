@@ -1,0 +1,17 @@
+syntax = "proto3";
+package pb;
+option go_package = ".;pb";
+
+message Cat {
+    optional string id = 1;
+    string name = 2;
+    string color = 3;
+    string age = 4;
+}
+
+service CatService {
+    rpc AddCat (Cat) returns (Cat);
+}
+
+
+
