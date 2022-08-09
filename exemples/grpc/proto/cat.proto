@@ -9,8 +9,14 @@ message Cat {
     string age = 4;
 }
 
+message CatResultStream {
+    string status = 1;
+    Cat cat = 2;
+}
+
 service CatService {
     rpc AddCat (Cat) returns (Cat);
+    rpc AddCatVerbose (Cat) returns (stream CatResultStream);
 }
 
 
