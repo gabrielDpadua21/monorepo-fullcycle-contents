@@ -7,7 +7,7 @@ import (
 	"github.com/codeedu/fc2-grpc/pb"
 	"github.com/codeedu/fc2-grpc/services"
 	"google.golang.org/grpc"
-	//"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -18,6 +18,7 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterCatServiceServer(grpcServer, &services.CatService{})
+	reflection.Register(grpcServer)
 
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatal("Could not serve: %v", err)

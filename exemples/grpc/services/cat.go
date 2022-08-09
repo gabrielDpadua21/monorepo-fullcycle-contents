@@ -2,7 +2,7 @@ package services
 
 import (
 	"context"
-	"fmt"
+	//"fmt"
 	//"io"
 	//"log"
 	//"time"
@@ -19,8 +19,6 @@ func NewCatService() *CatService {
 }
 
 func (*CatService) AddCat(ctx context.Context, request *pb.Cat) (*pb.Cat, error) {
-
-	fmt.Println(request.Name)
 	id := "123"
 
 	return &pb.Cat{
