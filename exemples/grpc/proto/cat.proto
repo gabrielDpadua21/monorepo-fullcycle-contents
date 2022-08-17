@@ -14,9 +14,14 @@ message CatResultStream {
     Cat cat = 2;
 }
 
+message Cats {
+    repeated Cat cat = 1;
+}
+
 service CatService {
     rpc AddCat (Cat) returns (Cat);
     rpc AddCatVerbose (Cat) returns (stream CatResultStream);
+    rpc AddCats(stream Cat) returns (Cats);
 }
 
 

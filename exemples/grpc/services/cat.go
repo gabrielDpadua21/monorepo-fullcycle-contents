@@ -2,9 +2,9 @@ package services
 
 import (
 	"context"
-	//"fmt"
-	//"io"
-	//"log"
+	"fmt"
+	"io"
+	"log"
 	"time"
 
 	"github.com/codeedu/fc2-grpc/pb"
@@ -69,4 +69,29 @@ func (*CatService) AddCatVerbose(req *pb.Cat, stream pb.CatService_AddCatVerbose
 	time.Sleep(time.Second * 3)
 
 	return nil
+}
+
+func (*CatService) AddCats(stream pb.CatService_AddCatsServer) error {
+	cats := []*pb.Cat{}
+
+	for {
+		req, err := stream.Recv()
+		
+		if err == io.EOF {
+			return stream.SendAndClose(&pb.Cats{
+				Cat: cats,
+			})
+		}
+
+		if err != nil {
+			log.Fatal("Error receving stream: %v", err)
+		}
+
+		cats = append(cats, &pb.Cat{
+			Name: req.GetName(),
+			Color: req.GetColor(),
+			Age: req.GetAge(),
+		})
+		fmt.Println("Adding", req.GetName())
+	}
 }

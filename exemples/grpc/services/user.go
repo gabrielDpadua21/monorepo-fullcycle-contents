@@ -80,7 +80,6 @@ func (*UserService) AddUserVerbose(req *pb.User, stream pb.UserService_AddUserVe
 }
 
 func (*UserService) AddUsers(stream pb.UserService_AddUsersServer) error {
-
 	users := []*pb.User{}
 
 	for {

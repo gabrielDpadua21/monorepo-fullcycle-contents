@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-	//"time"
+	"time"
 
 	"github.com/codeedu/fc2-grpc/pb"
 	"google.golang.org/grpc"
@@ -19,7 +19,8 @@ func main() {
 	defer connection.Close()
 
 	client := pb.NewCatServiceClient(connection)
-	AddCat(client)
+	//AddCat(client)
+	AddCats(client)
 }
 
 func AddCat(client pb.CatServiceClient) {
@@ -46,7 +47,7 @@ func AddCatVerbose (client pb.CatServiceClient) {
 
 	responseStream, err := client.AddCatVerbose(context.Background(), req)
 	if err != nil {
-		log.Fatal("Erro to call GRPC request stream: %v", err)
+		log.Fatalf("Erro to call GRPC request stream: %v", err)
 	}
 
 	for {
@@ -55,8 +56,49 @@ func AddCatVerbose (client pb.CatServiceClient) {
 			break
 		}
 		if err != nil {
-			log.Fatal("Could not recive de messag stream: %v", err)
+			log.Fatalf("Could not recive de messag stream: %v", err)
 		}
 		fmt.Println("Status: ", stream.Status)
 	}
+}
+
+func AddCats (client pb.CatServiceClient) {
+	reqs := []*pb.Cat{
+		&pb.Cat{
+			Name: "Frajola",
+			Color: "White and Black",
+			Age: "12",
+		},
+		&pb.Cat{
+			Name: "Thor",
+			Color: "White",
+			Age: "8",
+		},
+		&pb.Cat{
+			Name: "Lucyfer",
+			Color: "Yallow",
+			Age: "4",
+		},
+		&pb.Cat{
+			Name: "Zeuzz",
+			Color: "White and Black",
+			Age: "1",
+		},
+	}
+
+	stream, err := client.AddCats(context.Background())
+	if err != nil {
+		log.Fatalf("Error creating request: %v", err)
+	}
+
+	for _, req := range reqs {
+		stream.Send(req)
+		time.Sleep(time.Second * 3)
+	}
+
+	res, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatalf("Error receveing response: %v", err)
+	}
+	fmt.Println(res)
 }
