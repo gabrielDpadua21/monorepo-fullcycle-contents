@@ -95,3 +95,27 @@ func (*CatService) AddCats(stream pb.CatService_AddCatsServer) error {
 		fmt.Println("Adding", req.GetName())
 	}
 }
+
+func (*CatService) AddCatStreamBoth(stream pb.CatService_AddCatStreamBothServer) error {
+	for {
+		req, err := stream.Recv()
+		
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			log.Fatalf("Error receiving stream from the client: %v", err)
+		}
+
+		err = stream.Send(&pb.CatResultStream{
+			Status: "Added",
+			Cat: req,
+		})
+
+		if err != nil {
+			log.Fatalf("Error sending stream to the client: %v", err)
+		}
+	}
+
+}

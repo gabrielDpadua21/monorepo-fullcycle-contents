@@ -22,6 +22,7 @@ service CatService {
     rpc AddCat (Cat) returns (Cat);
     rpc AddCatVerbose (Cat) returns (stream CatResultStream);
     rpc AddCats(stream Cat) returns (Cats);
+    rpc AddCatStreamBoth (stream Cat) returns (stream CatResultStream);
 }
 
 

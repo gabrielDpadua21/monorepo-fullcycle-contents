@@ -20,7 +20,8 @@ func main() {
 
 	client := pb.NewCatServiceClient(connection)
 	//AddCat(client)
-	AddCats(client)
+	//AddCats(client)
+	AddCatStreamBoth(client)
 }
 
 func AddCat(client pb.CatServiceClient) {
@@ -101,4 +102,66 @@ func AddCats (client pb.CatServiceClient) {
 		log.Fatalf("Error receveing response: %v", err)
 	}
 	fmt.Println(res)
+}
+
+func AddCatStreamBoth (client pb.CatServiceClient) {
+	stream, err := client.AddCatStreamBoth(context.Background())
+
+	if err != nil {
+		log.Fatalf("Error creating request: %v", err)
+	}
+
+	reqs := []*pb.Cat{
+		&pb.Cat{
+			Name: "Frajola",
+			Color: "White and Black",
+			Age: "12",
+		},
+		&pb.Cat{
+			Name: "Thor",
+			Color: "White",
+			Age: "8",
+		},
+		&pb.Cat{
+			Name: "Lucyfer",
+			Color: "Yallow",
+			Age: "4",
+		},
+		&pb.Cat{
+			Name: "Zeuzz",
+			Color: "White and Black",
+			Age: "1",
+		},
+	}
+
+	wait := make(chan int)
+
+	go func() {
+		for _, req := range reqs {
+			fmt.Println("Sending cat: ", req.Name)
+			stream.Send(req)
+			time.Sleep(time.Second * 2)
+		}
+		stream.CloseSend()
+	}()
+
+	go func() {
+		for {
+			res, err := stream.Recv()
+			
+			if err == io.EOF {
+				break
+			}
+
+			if err != nil {
+				log.Fatalf("Error receinving data: %v", err)
+				break
+			}
+
+			fmt.Printf("Reciving cat %v with status: %v \n", res.GetCat().GetName(), res.GetStatus())
+		}
+		close(wait)
+	}()
+
+	<-wait
 }

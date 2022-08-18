@@ -25,6 +25,7 @@ type CatServiceClient interface {
 	AddCat(ctx context.Context, in *Cat, opts ...grpc.CallOption) (*Cat, error)
 	AddCatVerbose(ctx context.Context, in *Cat, opts ...grpc.CallOption) (CatService_AddCatVerboseClient, error)
 	AddCats(ctx context.Context, opts ...grpc.CallOption) (CatService_AddCatsClient, error)
+	AddCatStreamBoth(ctx context.Context, opts ...grpc.CallOption) (CatService_AddCatStreamBothClient, error)
 }
 
 type catServiceClient struct {
@@ -110,6 +111,37 @@ func (x *catServiceAddCatsClient) CloseAndRecv() (*Cats, error) {
 	return m, nil
 }
 
+func (c *catServiceClient) AddCatStreamBoth(ctx context.Context, opts ...grpc.CallOption) (CatService_AddCatStreamBothClient, error) {
+	stream, err := c.cc.NewStream(ctx, &CatService_ServiceDesc.Streams[2], "/pb.CatService/AddCatStreamBoth", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &catServiceAddCatStreamBothClient{stream}
+	return x, nil
+}
+
+type CatService_AddCatStreamBothClient interface {
+	Send(*Cat) error
+	Recv() (*CatResultStream, error)
+	grpc.ClientStream
+}
+
+type catServiceAddCatStreamBothClient struct {
+	grpc.ClientStream
+}
+
+func (x *catServiceAddCatStreamBothClient) Send(m *Cat) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *catServiceAddCatStreamBothClient) Recv() (*CatResultStream, error) {
+	m := new(CatResultStream)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // CatServiceServer is the server API for CatService service.
 // All implementations must embed UnimplementedCatServiceServer
 // for forward compatibility
@@ -117,6 +149,7 @@ type CatServiceServer interface {
 	AddCat(context.Context, *Cat) (*Cat, error)
 	AddCatVerbose(*Cat, CatService_AddCatVerboseServer) error
 	AddCats(CatService_AddCatsServer) error
+	AddCatStreamBoth(CatService_AddCatStreamBothServer) error
 	mustEmbedUnimplementedCatServiceServer()
 }
 
@@ -132,6 +165,9 @@ func (UnimplementedCatServiceServer) AddCatVerbose(*Cat, CatService_AddCatVerbos
 }
 func (UnimplementedCatServiceServer) AddCats(CatService_AddCatsServer) error {
 	return status.Errorf(codes.Unimplemented, "method AddCats not implemented")
+}
+func (UnimplementedCatServiceServer) AddCatStreamBoth(CatService_AddCatStreamBothServer) error {
+	return status.Errorf(codes.Unimplemented, "method AddCatStreamBoth not implemented")
 }
 func (UnimplementedCatServiceServer) mustEmbedUnimplementedCatServiceServer() {}
 
@@ -211,6 +247,32 @@ func (x *catServiceAddCatsServer) Recv() (*Cat, error) {
 	return m, nil
 }
 
+func _CatService_AddCatStreamBoth_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CatServiceServer).AddCatStreamBoth(&catServiceAddCatStreamBothServer{stream})
+}
+
+type CatService_AddCatStreamBothServer interface {
+	Send(*CatResultStream) error
+	Recv() (*Cat, error)
+	grpc.ServerStream
+}
+
+type catServiceAddCatStreamBothServer struct {
+	grpc.ServerStream
+}
+
+func (x *catServiceAddCatStreamBothServer) Send(m *CatResultStream) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *catServiceAddCatStreamBothServer) Recv() (*Cat, error) {
+	m := new(Cat)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // CatService_ServiceDesc is the grpc.ServiceDesc for CatService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -232,6 +294,12 @@ var CatService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "AddCats",
 			Handler:       _CatService_AddCats_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "AddCatStreamBoth",
+			Handler:       _CatService_AddCatStreamBoth_Handler,
+			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},
