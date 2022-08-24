@@ -5,5 +5,6 @@ services:
     build: .
     ports:
       - 50021:50021
+      - 8080:8080
     volumes:
       - .:/go/src

@@ -1,3 +1,4 @@
+
 type Category {
     id: ID!
     name: String!
@@ -28,22 +29,22 @@ input NewCategory {
 input NewCourse {
     name: String!
     description: String!
-    categoryId: ID!
+    categoryID: ID!
 }
 
-input NewChapter {
-    name: String!
+input NewChapter  {
+    name: String!    
     courseId: ID!
+}
+
+type Mutation {
+    createCategory(input: NewCategory!): Category!
+    createCourse(input: NewCourse!): Course!
+    createChapter(input: NewChapter!): Chapter!
 }
 
 type Query {
     categories: [Category]
     courses: [Course]
     chapters: [Chapter]
-}
-
-type Mutation {
-    createCategory(input: NewCategory!): Category!
-    createCourse(input: NewCourse!): Course!
-    createChapter(input: NewChapter): Chapter!
 }
